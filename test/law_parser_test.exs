@@ -42,12 +42,13 @@ defmodule LawExtractor.LawParserTest do
   end
 
   # @tag :skip
-  test "create book map" do
+  test "create book 4 map" do
     {:ok, book4} = File.read("test/docs/2_241213-book4.txt")
-    LawParser.create_book(book4)
+    {book_title, _parts_map} = LawParser.create_book(String.rstrip(book4))
+    assert book_title == "De las Obligaciones"
   end
 
-  # @tag :skip
+  @tag :skip
   test "create json" do
     {title, content} = LawParser.extract_content("docs/2_241213.txt")
     LawParser.create_json(title, content)

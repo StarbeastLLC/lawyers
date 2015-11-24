@@ -17,7 +17,7 @@ defmodule LawExtractor.LawParser do
     transitories_map = create_transitories_map(transitories)
     books_map = create_books_map(books)
 
-    %{title: title, header: header, preliminars: preliminars_map}
+    %{title: title, header: header, preliminars: preliminars_map, transitories: transitories_map, books: books_map}
   end
 
   def extract_body(content, title) do
@@ -96,7 +96,7 @@ defmodule LawExtractor.LawParser do
     |> String.split(part_exp, trim: true)
 
     {book_title, parts} = extract_book_title(parts)
-    IO.inspect "Parts to process #{length(parts)}"
+    # IO.inspect "Parts to process #{length(parts)}"
     parts_map = Enum.map(parts, fn(part) -> create_part(part) end)
     {book_title,parts_map}
   end
@@ -130,7 +130,7 @@ defmodule LawExtractor.LawParser do
     |> String.split(title_exp, trim: true)
 
     {part_title, titles} = extract_part_title(titles)
-    IO.inspect "Titles to process #{length(titles)}"
+    # IO.inspect "Titles to process #{length(titles)}"
     titles_map = Enum.map(titles, fn(title) -> create_title(title) end)
     {part_title,titles_map}
   end
@@ -164,7 +164,7 @@ defmodule LawExtractor.LawParser do
     |> String.split(chapter_exp, trim: true)
 
     {chapter_title, chapters} = extract_title_title(chapters)
-    IO.inspect "Chapters to process #{length(chapters)}"
+    # IO.inspect "Chapters to process #{length(chapters)}"
     # IO.inspect chapter_title
     chapters_map = Enum.map(chapters, fn(chapter) -> create_chapter(chapter) end)
     {chapter_title,chapters_map}
@@ -224,7 +224,7 @@ defmodule LawExtractor.LawParser do
 
     titulos = String.split(libro, ~r{TITULO (PRIMERO|SEGUNDO|TERCERO|CUARTO|QUINTO|SEXTO|SEPTIMO|OCTAVO|NOVENO|DECIMO)}, trim: true)
 
-    libro_titulo = Enum.at(titulos, 0)
+    _libro_titulo = Enum.at(titulos, 0)
     titulos = Enum.drop(titulos,1)
 
     # Hasta aqui:
