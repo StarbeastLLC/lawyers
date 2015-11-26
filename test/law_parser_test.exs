@@ -48,6 +48,14 @@ defmodule LawExtractor.LawParserTest do
     assert book_title == "De las Obligaciones"
   end
 
+  # @tag :skip
+  test "create part from book 4" do
+    # {:ok, part4} = File.read("test/docs/2_241213-part-book4.txt")
+    # {part_title, _titles_map} = LawParser.create_part(String.rstrip(part4))
+    # IO.inspect part_title
+    # assert part_title == "De las Obligaciones en General"
+  end
+
   @tag :skip
   test "create json" do
     {title, content} = LawParser.extract_content("docs/2_241213.txt")
