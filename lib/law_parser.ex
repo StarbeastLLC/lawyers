@@ -1,74 +1,30 @@
 defmodule LawExtractor.LawParser do
-
-  def extract_content(file_name) do
-    {:ok, file} = File.open(file_name, [:read, :utf8])
-    title = IO.read(file, :line) |> String.strip
-    content = IO.read(file, :all)
-    {title,content}
-  end
+  alias LawExtractor.Extractor
 
   ######################################################################################################
-  # Función principal de creación del json a partir del texto plano
+  # Función principal de inicio del parseo del contenido del archivo
   ######################################################################################################
-  def create_json(title,content) do
-    {header, body} = extract_body(content, title)
-    {preliminars, books, transitories} = extract_sections(body)
-    preliminars_map = create_preliminar_map(preliminars)
-    transitories_map = create_transitories_map(transitories)
-    books_map = create_books_map(books)
 
-    %{title: title, header: header, preliminars: preliminars_map, transitories: transitories_map, books: books_map}
+  def parse_file(file_name) do
+    {_title, _header, _preliminars, books, _transitories} = parse_content_from_file(file_name)
+    # preliminars_map = parse_preliminar(preliminars)
+    # transitories_map = parse_transitories(transitories)
+
+    books_map = parse_books(books)
+
+    %{books: books_map}
+    # %{title: title, header: header, preliminars: preliminars_map, books: books_map, transitories: transitories_map}
   end
 
-  def extract_body(content, title) do
-    [header, body] = String.split(content, title, parts: 2, trim: true)
-    {String.strip(header), String.strip(body)}
+  def parse_content_from_file(file_name) do
+    {title, content} = Extractor.extract_content(file_name)
+    {header, body} = Extractor.extract_header_body(content, title)
+    {preliminars, books, transitories} = Extractor.extract_main_sections(body)
+
+    {title, header, preliminars, books, transitories}
   end
 
-  def extract_sections(body) do
-    books_exp = ~r{LIBRO (PRIMERO|SEGUNDO|TERCERO|CUARTO|QUINTO|SEXTO|SEPTIMO|OCTAVO|NOVENO|DECIMO)}
-    raw_books = String.split(body, books_exp, trim: true)
-
-    {preliminars, books_with_trans}  = extract_preliminars(raw_books)
-    {transitories, books} = extract_transitories(books_with_trans)
-
-    {preliminars, books, transitories}
-  end
-
-  def extract_preliminars(raw_books) do
-    first_elem = hd(raw_books)
-    preliminars = ""
-    raw_preliminars = String.split(first_elem, ~r{(Preliminares)}, parts: 2, trim: true)
-    if length(raw_preliminars) == 2 do
-      preliminars = raw_preliminars
-                    |> Enum.at(1)
-                    |> String.strip
-      books_without_pre = Enum.drop(raw_books,1)
-    end
-    {preliminars, books_without_pre}
-  end
-
-  def extract_transitories(raw_books) do
-    last_elem_index = length(raw_books) - 1
-    last_elem = Enum.at(raw_books, last_elem_index)
-    transitories = ""
-    raw_transitories = String.split(last_elem, ~r{(Transitorios|TRANSITORIOS)}, parts: 2, trim: true)
-
-    # Si hay mas de un elemento significa que hay transitorios, el split encontro la cadena
-    # y pudo hacer la separación.
-    if length(raw_transitories) == 2 do
-      # Primero, de raw_transitories obtenemos y eliminamos el primer elemento que es parte del raw_books.
-      [book | transitories] = raw_transitories
-      transitories = hd(transitories)
-
-      # El último elemento de raw_books tiene parte del libro y parte de transitorios,
-      # por lo que hay que que reemplazar este elemento con uno que no traiga los transitorios.
-      raw_books = List.replace_at(raw_books,last_elem_index, book)
-    end
-    {String.strip(transitories), raw_books}
-  end
-
-  def create_preliminar_map(preliminars) do
+  def parse_preliminar(preliminars) do
     preliminars_map = String.split(preliminars, ~r{Artículo \d..-})
     |> tl
     |> Stream.with_index
@@ -76,8 +32,12 @@ defmodule LawExtractor.LawParser do
     Enum.into(preliminars_map, %{})
   end
 
-  def create_transitories_map(transitories) do
+  def parse_transitories(transitories) do
     transitories
+  end
+
+  def parse_books(books) do
+    books
   end
 
   def create_books_map(books) do

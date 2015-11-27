@@ -2,10 +2,11 @@ defmodule LawExtractor.LawParserTest do
   use ExUnit.Case
   doctest LawExtractor
   alias LawExtractor.LawParser
+  alias LawExtractor.Extractor
 
   # @tag :skip
   test "extract title and content" do
-    {title, content} = LawParser.extract_content("docs/2_241213.txt")
+    {title, content} = Extractor.extract_content("docs/2_241213.txt")
     {:ok, real_content} = File.read("test/docs/2_241213-content.txt")
     assert title == "CÓDIGO CIVIL FEDERAL"
     assert content == real_content
@@ -17,7 +18,7 @@ defmodule LawExtractor.LawParserTest do
     {:ok, real_header} = File.read("test/docs/2_241213-header.txt")
     {:ok, real_body} = File.read("test/docs/2_241213-body.txt")
     title = "CÓDIGO CIVIL FEDERAL"
-    {header, body} = LawParser.extract_body(real_content, title)
+    {header, body} = Extractor.extract_header_body(real_content, title)
     assert header == String.strip(real_header)
     assert body == String.strip(real_body)
   end
@@ -28,7 +29,7 @@ defmodule LawExtractor.LawParserTest do
     {:ok, real_preliminars} = File.read("test/docs/2_241213-preliminars.txt")
     {:ok, real_book4} = File.read("test/docs/2_241213-book4.txt")
     {:ok, real_transitories} = File.read("test/docs/2_241213-transitories.txt")
-    {preliminars, books, transitories} = LawParser.extract_sections(String.strip(body))
+    {preliminars, books, transitories} = Extractor.extract_main_sections(String.strip(body))
 
     assert preliminars == String.strip(real_preliminars)
     assert String.rstrip(Enum.at(books, 3)) == String.rstrip(real_book4)
@@ -38,7 +39,7 @@ defmodule LawExtractor.LawParserTest do
   # @tag :skip
   test "extract preliminars_map" do
     {:ok, real_preliminars} = File.read("test/docs/2_241213-preliminars.txt")
-    LawParser.create_preliminar_map(String.strip(real_preliminars))
+    LawParser.parse_preliminar(String.strip(real_preliminars))
   end
 
   # @tag :skip
@@ -58,7 +59,6 @@ defmodule LawExtractor.LawParserTest do
 
   @tag :skip
   test "create json" do
-    {title, content} = LawParser.extract_content("docs/2_241213.txt")
-    LawParser.create_json(title, content)
+    LawParser.parse_content_from_file("docs/2_241213.txt")
   end
 end
