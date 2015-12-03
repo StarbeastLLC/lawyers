@@ -1,11 +1,12 @@
 defmodule LawExtractor.TitleParser do
+  @docmodule "TITULO = TITLE ( APARTADO+ | CAPITULO+ | ARTICULO+ )"
+
   @title_expression ~r{TITULO (PRIMERO|SEGUNDO|TERCERO|CUARTO|QUINTO|SEXTO|SEPTIMO|OCTAVO|NOVENO|DECIMO)}
   @title_first_expression ~r{^TITULO (PRIMERO|SEGUNDO|TERCERO|CUARTO|QUINTO|SEXTO|SEPTIMO|OCTAVO|NOVENO|DECIMO)}
-  @article_expression ~r{Artículo\s}
 
   import LawExtractor.HeadlandParser, only: [parse_headland: 1, headlands_exist_expression: 0, headland_expression: 0]
   import LawExtractor.ChapterParser,  only: [parse_chapter: 1, chapter_expression: 0]
-  import LawExtractor.ArticleParser,  only: [parse_article: 1]
+  import LawExtractor.ArticleParser,  only: [parse_article: 1, article_expression: 0]
 
   # Public functions
   def parse_title(title) do
@@ -50,9 +51,11 @@ defmodule LawExtractor.TitleParser do
   # Branchs
   defp parse_title_containing(title, :headlands) do
     raw_headlands = split_title_using(title, headland_expression)
+    headland_names = extract_headland_names(title, headland_expression)
 
     {title_name, headlands} = extract_title_name(raw_headlands)
-    headlands_map = Enum.map(headlands, fn(headland) -> parse_headland(headland) end)
+    headlands_with_names = List.zip([headland_names | [headlands | []]])
+    headlands_map = Enum.map(headlands_with_names, fn(headland_with_name) -> parse_headland(headland_with_name) end)
     {title_name, headlands_map}
   end
 
@@ -65,7 +68,7 @@ defmodule LawExtractor.TitleParser do
   end
 
   defp parse_title_containing(title, :articles) do
-    raw_articles = split_title_using(title, @article_expression)
+    raw_articles = split_title_using(title, article_expression)
 
     {title_name, articles} = extract_title_name(raw_articles)
     articles_map = Enum.map(articles, fn(article) -> parse_article(article) end)
@@ -77,6 +80,12 @@ defmodule LawExtractor.TitleParser do
     title_name = Enum.at(raw_element, 0) |> String.strip
     elements = Enum.drop(raw_element,1)
     {title_name, elements}
+  end
+
+  defp extract_headland_names(title, expression) do
+    Regex.scan(expression, title)
+    |> List.flatten
+    |> Enum.map(&String.strip/1)
   end
 
   # section_exp = ~r{\n\n\s*(\w+|\s+)+\n\n/u}
