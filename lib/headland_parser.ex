@@ -6,8 +6,11 @@ defmodule LawExtractor.HeadlandParser do
 
   import LawExtractor.ChapterParser,  only: [parse_chapter: 1, chapter_expression: 0]
   import LawExtractor.ArticleParser,  only: [parse_article: 1, article_expression: 0]
+  import LawExtractor.SubHeadLandParser, only: [parse_subheadland: 1, subheadland_expression: 0]
 
+  ####################
   # Public functions
+  ####################
   def parse_headland({headland_name, headland}) do
     parse_headland_containing(headland_name, headland, headland_has(headland))
   end
@@ -20,7 +23,34 @@ defmodule LawExtractor.HeadlandParser do
     @headland_expression
   end
 
+  ####################
+  # Branchs
+  ####################
+  defp parse_headland_containing(headland_name, headland, :subheadlands) do
+    headland_titles = extract_headland_titles(headland, subheadland_expression)
+    {titles, _} = Enum.reduce(headland_titles, %{titles: [], general: []}, &extract_divisor(&1, &2))
+
+    subheadlands = split_headland_using_titles(headland, titles)
+    subheadlands_with_names = List.zip([titles | [subheadlands | []]])
+    subheadland_map = Enum.map(subheadlands_with_names, fn(subheadland) -> parse_subheadland(subheadland) end)
+    {headland_name, subheadland_map}
+  end
+
+  defp parse_headland_containing(headland_name, headland, :chapters) do
+    chapters = split_headland_using(headland, chapter_expression)
+    chapters_map = Enum.map(chapters, fn(chapter) -> parse_chapter(chapter) end)
+    {headland_name, chapters_map}
+  end
+
+  defp parse_headland_containing(headland_name, headland, :articles) do
+    articles = split_headland_using(headland, article_expression)
+    articles_map = Enum.map(articles, fn(article) -> parse_article(article) end)
+    {headland_name, articles_map}
+  end
+
+  ####################
   # Private functions
+  ####################
   defp headland_has(headline) do
     unless headland_has_chapters(headline) do
       if headland_has_subheadlands(headline), do: :subheadlands, else: :chapters
@@ -47,23 +77,29 @@ defmodule LawExtractor.HeadlandParser do
     |> String.split(expression, trim: true)
   end
 
-  # Branchs
-  defp parse_headland_containing(headland_name, headland, :subheadlands) do
+  defp extract_headland_titles(headland, expression) do
+    Regex.scan(expression, headland)
+    |> List.flatten
+    |> Enum.map(&String.strip/1)
+  end
+
+  defp extract_divisor(element, acc) do
+    unless element in ["CAPITULO I", "PRIMER CAPITULO"] do
+      new_general = [ element | acc[:general] ]
+      %{acc | general: new_general}
+    else
+      [title | new_general] = acc[:general]
+      new_titles = [ title | acc[:titles] ]
+      %{titles: new_titles, general: new_general}
+    end
+  end
+
+  defp split_headland_using_titles(headland, titles) do
+    exp_to_compile = "(" <> Enum.join(titles, "|") <> ")"
+    {:ok, expression} = Regex.compile(exp_to_compile)
+
     headland
+    |> String.strip
+    |> String.split(expression, trim: true)
   end
-
-  defp parse_headland_containing(headland_name, headland, :chapters) do
-    chapters = split_headland_using(headland, chapter_expression)
-    chapters_map = Enum.map(chapters, fn(chapter) -> parse_chapter(chapter) end)
-    {headland_name, chapters_map}
-  end
-
-  defp parse_headland_containing(headland_name, headland, :articles) do
-    articles = split_headland_using(headland, article_expression)
-    articles_map = Enum.map(articles, fn(article) -> parse_article(article) end)
-    {headland_name, articles_map}
-  end
-
-  # Auxiliars functions
-
 end
