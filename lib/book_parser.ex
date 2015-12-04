@@ -4,20 +4,16 @@ defmodule LawExtractor.BookParser do
   import LawExtractor.PartParser,  only: [parse_part: 1, part_expression: 0]
   import LawExtractor.TitleParser, only: [parse_title: 1, title_expression: 0]
 
+  ####################
   # Public functions
+  ####################
   def parse_book(book) do
     parse_book_containing(book, book_has(book))
   end
 
-  # Private functions
-  defp book_has(book) do
-    case Regex.match?(part_expression, book) do
-      true -> :parts
-      false -> :titles
-    end
-  end
-
+  ####################
   # Branchs
+  ####################
   defp parse_book_containing(book, :parts) do
     raw_parts = split_book_using(book, part_expression)
 
@@ -34,7 +30,16 @@ defmodule LawExtractor.BookParser do
     {book_title, titles_map}
   end
 
-  # Auxiliar functions
+  ####################
+  # Private functions
+  ####################
+  defp book_has(book) do
+    case Regex.match?(part_expression, book) do
+      true -> :parts
+      false -> :titles
+    end
+  end
+
   defp split_book_using(book, expression) do
     book
     |> String.strip

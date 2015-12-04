@@ -8,7 +8,9 @@ defmodule LawExtractor.TitleParser do
   import LawExtractor.ChapterParser,  only: [parse_chapter: 1, chapter_expression: 0]
   import LawExtractor.ArticleParser,  only: [parse_article: 1, article_expression: 0]
 
+  ####################
   # Public functions
+  ####################
   def parse_title(title) do
     parse_title_containing(title, title_has(title))
   end
@@ -21,34 +23,9 @@ defmodule LawExtractor.TitleParser do
     @title_expression
   end
 
-  # Private functions
-  defp title_has(title) do
-    unless title_has_chapters(title) do
-      if title_has_headlands(title), do: :headlands, else: :chapters
-    else
-      :articles
-    end
-  end
-
-  defp title_has_chapters(title) do
-    Regex.match?(chapter_expression, title)
-  end
-
-  defp title_has_headlands(title) do
-    first_element = title
-    |> split_title_using(chapter_expression)
-    |> Enum.at(0)
-
-    Regex.match?(headlands_exist_expression, first_element)
-  end
-
-  defp split_title_using(title, expression) do
-    title
-    |> String.strip
-    |> String.split(expression, trim: true)
-  end
-
+  ####################
   # Branchs
+  ####################
   defp parse_title_containing(title, :headlands) do
     raw_headlands = split_title_using(title, headland_expression)
     headland_names = extract_headland_names(title, headland_expression)
@@ -75,7 +52,35 @@ defmodule LawExtractor.TitleParser do
     {title_name, articles_map}
   end
 
-  # Auxiliars functions
+  ####################
+  # Private functions
+  ####################
+  defp title_has(title) do
+    unless title_has_chapters(title) do
+      if title_has_headlands(title), do: :headlands, else: :chapters
+    else
+      :articles
+    end
+  end
+
+  defp title_has_chapters(title) do
+    Regex.match?(chapter_expression, title)
+  end
+
+  defp title_has_headlands(title) do
+    first_element = title
+    |> split_title_using(chapter_expression)
+    |> Enum.at(0)
+
+    Regex.match?(headlands_exist_expression, first_element)
+  end
+
+  defp split_title_using(title, expression) do
+    title
+    |> String.strip
+    |> String.split(expression, trim: true)
+  end
+
   defp extract_title_name(raw_element) do
     title_name = Enum.at(raw_element, 0) |> String.strip
     elements = Enum.drop(raw_element,1)
