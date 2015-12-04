@@ -85,21 +85,33 @@ defmodule LawExtractor.HeadlandParser do
 
   defp extract_divisor(element, acc) do
     unless element in ["CAPITULO I", "PRIMER CAPITULO"] do
-      new_general = [ element | acc[:general] ]
-      %{acc | general: new_general}
+      push_element_to_general(element, acc)
     else
-      [title | new_general] = acc[:general]
-      new_titles = [ title | acc[:titles] ]
-      %{titles: new_titles, general: new_general}
+      move_element_from_general_to_titles(acc)
     end
   end
 
+  defp push_element_to_general(element, acc) do
+    new_general = [ element | acc[:general] ]
+    %{acc | general: new_general}
+  end
+
+  defp move_element_from_general_to_titles(acc) do
+    [title | new_general] = acc[:general]
+    new_titles = [ title | acc[:titles] ]
+    %{titles: new_titles, general: new_general}
+  end
+
   defp split_headland_using_titles(headland, titles) do
-    exp_to_compile = "(" <> Enum.join(titles, "|") <> ")"
-    {:ok, expression} = Regex.compile(exp_to_compile)
+    {:ok, expression} = create_regular_expression_from_titles(titles)
 
     headland
     |> String.strip
     |> String.split(expression, trim: true)
+  end
+
+  defp create_regular_expression_from_titles(titles) do
+    exp_to_compile = "(" <> Enum.join(titles, "|") <> ")"
+    Regex.compile(exp_to_compile)
   end
 end
