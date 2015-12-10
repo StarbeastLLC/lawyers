@@ -58,8 +58,9 @@ defmodule LawExtractor.LawParserTest do
     # assert part_title == "De las Obligaciones en General"
   end
 
-  @tag :skip
+  # @tag :skip
   test "create json" do
-    LawParser.parse_content_from_file("docs/2_241213.txt")
+    data = LawParser.parse_file("docs/2_241213.txt")
+    IO.inspect data.books
   end
 end
