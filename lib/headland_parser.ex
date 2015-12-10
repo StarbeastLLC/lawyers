@@ -15,13 +15,9 @@ defmodule LawExtractor.HeadlandParser do
     parse_headland_containing(headland_name, headland, headland_has(headland))
   end
 
-  def headlands_exist_expression do
-    @headlands_exist_expression
-  end
+  def headlands_exist_expression, do: @headlands_exist_expression
 
-  def headland_expression do
-    @headland_expression
-  end
+  def headland_expression, do: @headland_expression
 
   ####################
   # Branchs

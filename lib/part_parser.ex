@@ -1,10 +1,13 @@
 defmodule LawExtractor.PartParser do
   @moduledoc "PARTE = TITLE? TITULO+"
+
   @part_expression ~r{(PRIMERA|SEGUNDA|TERCERA|CUARTA|QUINTA|SEXTA|SEPTIMA) PARTE|PARTE (PRIMERA|SEGUNDA|TERCERA|CUARTA|QUINTA|SEXTA|SEPTIMA)}
 
   import LawExtractor.TitleParser, only: [parse_title: 1, title_first_expression: 0, title_expression: 0]
 
+  ####################
   # Public functions
+  ####################
   def parse_part(part) do
     titles = split_part_with_titles(part)
     part_title = "SIN TITULO"
@@ -17,11 +20,11 @@ defmodule LawExtractor.PartParser do
     {part_title, titles_map}
   end
 
-  def part_expression do
-    @part_expression
-  end
+  def part_expression, do: @part_expression
 
+  ####################
   # Private functions
+  ####################
   defp split_part_with_titles(part) do
     part
     |> String.strip

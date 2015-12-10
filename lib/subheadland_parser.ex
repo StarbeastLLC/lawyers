@@ -12,9 +12,7 @@ defmodule LawExtractor.SubHeadLandParser do
     parse_subheadland_containing(subheadland_name, subheadland, :chapters)
   end
 
-  def subheadland_expression do
-    @subheadland_expression
-  end
+  def subheadland_expression, do: @subheadland_expression
 
   ####################
   # Branchs

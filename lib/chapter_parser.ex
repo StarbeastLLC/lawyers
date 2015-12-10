@@ -13,13 +13,7 @@ defmodule LawExtractor.ChapterParser do
     parse_chapter_containing(chapter, chapter_has(chapter))
   end
 
-  def chapter_expression do
-    @chapter_expression
-  end
-
-  def create_chapter(chapter) do
-    chapter
-  end
+  def chapter_expression, do: @chapter_expression
 
   ####################
   # Branchs

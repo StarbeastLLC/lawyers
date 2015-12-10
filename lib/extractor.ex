@@ -1,18 +1,32 @@
 defmodule LawExtractor.Extractor do
 
-  def extract_content(file_name) do
+  ####################
+  # Public functions
+  ####################
+  def extract_content_from_file_name(file_name) do
+    {title, content} = extract_content(file_name)
+    {header, body} = extract_header_body(content, title)
+    {preliminars, books, transitories} = extract_main_sections(body)
+
+    {title, header, preliminars, books, transitories}
+  end
+
+  ####################
+  # Private functions
+  ####################
+  defp extract_content(file_name) do
     {:ok, file} = File.open(file_name, [:read, :utf8])
     title = IO.read(file, :line) |> String.strip
     content = IO.read(file, :all)
     {title,content}
   end
 
-  def extract_header_body(content, title) do
+  defp extract_header_body(content, title) do
     [header, body] = String.split(content, title, parts: 2, trim: true)
     {String.strip(header), String.strip(body)}
   end
 
-  def extract_main_sections(body) do
+  defp extract_main_sections(body) do
     books_exp = ~r{LIBRO (PRIMERO|SEGUNDO|TERCERO|CUARTO|QUINTO|SEXTO|SEPTIMO|OCTAVO|NOVENO|DECIMO)}
     raw_books = String.split(body, books_exp, trim: true)
 
@@ -22,7 +36,7 @@ defmodule LawExtractor.Extractor do
     {preliminars, books, transitories}
   end
 
-  def extract_preliminars(raw_books) do
+  defp extract_preliminars(raw_books) do
     first_elem = hd(raw_books)
     preliminars = ""
     raw_preliminars = String.split(first_elem, ~r{(Preliminares)}, parts: 2, trim: true)
@@ -35,7 +49,7 @@ defmodule LawExtractor.Extractor do
     {preliminars, books_without_pre}
   end
 
-  def extract_transitories(raw_books) do
+  defp extract_transitories(raw_books) do
     last_elem_index = length(raw_books) - 1
     last_elem = Enum.at(raw_books, last_elem_index)
     transitories = ""

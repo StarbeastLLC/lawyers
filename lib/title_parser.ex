@@ -15,13 +15,9 @@ defmodule LawExtractor.TitleParser do
     parse_title_containing(title, title_has(title))
   end
 
-  def title_first_expression do
-    @title_first_expression
-  end
+  def title_first_expression, do: @title_first_expression
 
-  def title_expression do
-    @title_expression
-  end
+  def title_expression, do: @title_expression
 
   ####################
   # Branchs
