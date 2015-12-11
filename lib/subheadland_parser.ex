@@ -23,7 +23,7 @@ defmodule LawExtractor.SubHeadLandParser do
     |> Enum.with_index
 
     chapters_map = Enum.map(chapters_with_index, &parse_chapter(&1))
-    {subheadland_name, chapters_map}
+    {"SUBAPARTADO: " <> subheadland_name, chapters_map}
   end
 
   ####################

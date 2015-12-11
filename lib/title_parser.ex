@@ -91,7 +91,7 @@ defmodule LawExtractor.TitleParser do
   end
 
   defp index_to_word(index) do
-    ["PRIMERO","SEGUNDO","TERCERO","CUARTO","QUINTO","SEXTO","SEPTIMO","OCTAVO","NOVENO","DECIMO"]
+    ["PRIMERO","SEGUNDO","TERCERO","CUARTO","QUINTO","SEXTO","SEPTIMO","OCTAVO","NOVENO","DECIMO", "UNDECIMO"]
     |> Enum.at(index)
   end
   # section_exp = ~r{\n\n\s*(\w+|\s+)+\n\n/u}

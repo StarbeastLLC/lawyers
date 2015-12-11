@@ -18,7 +18,8 @@ defmodule LawExtractor.ArticleParser do
   ####################
   defp parse_article_containing(article, :text) do
     raw_article = split_article_using(article, @article_number_expression)
-    {_article_number, _text} = extract_article_number(raw_article)
+    {article_number, text} = extract_article_number(raw_article)
+    {"ARTICULO " <> article_number, text}
   end
 
   ####################

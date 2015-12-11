@@ -22,7 +22,7 @@ defmodule LawExtractor.SectionParser do
 
     {section_name, articles} = extract_section_name(raw_articles)
     articles_map = Enum.map(articles, &parse_article(&1))
-    {section_name, articles_map}
+    {"SECCION: " <> section_name, articles_map}
   end
 
   ####################
