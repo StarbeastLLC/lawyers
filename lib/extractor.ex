@@ -30,7 +30,7 @@ defmodule LawExtractor.Extractor do
     books_exp = ~r{LIBRO (PRIMERO|SEGUNDO|TERCERO|CUARTO|QUINTO|SEXTO|SEPTIMO|OCTAVO|NOVENO|DECIMO)}
     raw_books = String.split(body, books_exp, trim: true)
 
-    {preliminars, books_with_trans}  = extract_preliminars(raw_books)
+    {preliminars, books_with_trans} = extract_preliminars(raw_books)
     {transitories, books} = extract_transitories(books_with_trans)
 
     {preliminars, books, transitories}

@@ -11,7 +11,7 @@ defmodule LawExtractor.LawParser do
   ###################################################################
   def parse_file(file_name) do
     {title, header, preliminar, books, _transitories} = extract_content_from_file_name(file_name)
-    books_map = Enum.map(books, fn(book) -> parse_book(book) end)
+    books_map = Enum.map(books, &parse_book(&1))
     preliminar_map = parse_preliminar(preliminar)
 
     %{title: title, header: header, preliminar: preliminar_map, books: books_map}
