@@ -52,7 +52,7 @@ defmodule LawExtractor.TitleParser do
   # Private functions
   ####################
   defp title_has(title) do
-    unless title_has_chapters(title) do
+    if title_has_chapters(title) do
       if title_has_headlands(title), do: :headlands, else: :chapters
     else
       :articles
