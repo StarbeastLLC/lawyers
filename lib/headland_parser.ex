@@ -28,19 +28,22 @@ defmodule LawExtractor.HeadlandParser do
 
     subheadlands = split_headland_using_titles(headland, titles)
     subheadlands_with_names = List.zip([titles | [subheadlands | []]])
-    subheadland_map = Enum.map(subheadlands_with_names, fn(subheadland) -> parse_subheadland(subheadland) end)
+    subheadland_map = Enum.map(subheadlands_with_names, &parse_subheadland(&1))
     {headland_name, subheadland_map}
   end
 
   defp parse_headland_containing(headland_name, headland, :chapters) do
-    chapters = split_headland_using(headland, chapter_expression)
-    chapters_map = Enum.map(chapters, fn(chapter) -> parse_chapter(chapter) end)
+    chapters_with_index = headland
+    |> split_headland_using(chapter_expression)
+    |> Enum.with_index
+
+    chapters_map = Enum.map(chapters_with_index, &parse_chapter(&1))
     {headland_name, chapters_map}
   end
 
   defp parse_headland_containing(headland_name, headland, :articles) do
     articles = split_headland_using(headland, article_expression)
-    articles_map = Enum.map(articles, fn(article) -> parse_article(article) end)
+    articles_map = Enum.map(articles, &parse_article(&1))
     {headland_name, articles_map}
   end
 

@@ -18,8 +18,11 @@ defmodule LawExtractor.SubHeadLandParser do
   # Branchs
   ####################
   defp parse_subheadland_containing(subheadland_name, subheadland, :chapters) do
-    chapters = split_subheadland_using(subheadland, chapter_expression)
-    chapters_map = Enum.map(chapters, fn(chapter) -> parse_chapter(chapter) end)
+    chapters_with_index = subheadland
+    |> split_subheadland_using(chapter_expression)
+    |> Enum.with_index
+
+    chapters_map = Enum.map(chapters_with_index, &parse_chapter(&1))
     {subheadland_name, chapters_map}
   end
 

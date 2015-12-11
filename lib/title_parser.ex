@@ -11,8 +11,8 @@ defmodule LawExtractor.TitleParser do
   ####################
   # Public functions
   ####################
-  def parse_title(title) do
-    parse_title_containing(title, title_has(title))
+  def parse_title(title_with_index) do
+    parse_title_containing(title_with_index, title_has(title_with_index))
   end
 
   def title_first_expression, do: @title_first_expression
@@ -22,36 +22,37 @@ defmodule LawExtractor.TitleParser do
   ####################
   # Branchs
   ####################
-  defp parse_title_containing(title, :headlands) do
+  defp parse_title_containing({title, index}, :headlands) do
     raw_headlands = split_title_using(title, headland_expression)
     headland_names = extract_headland_names(title, headland_expression)
 
     {title_name, headlands} = extract_title_name(raw_headlands)
     headlands_with_names = List.zip([headland_names | [headlands | []]])
-    headlands_map = Enum.map(headlands_with_names, fn(headland_with_name) -> parse_headland(headland_with_name) end)
-    {title_name, headlands_map}
+    headlands_map = Enum.map(headlands_with_names, &parse_headland(&1))
+    {"TITULO #{index_to_word(index)}: " <> title_name, headlands_map}
   end
 
-  defp parse_title_containing(title, :chapters) do
+  defp parse_title_containing({title, index}, :chapters) do
     raw_chapters = split_title_using(title, chapter_expression)
 
     {title_name, chapters} = extract_title_name(raw_chapters)
-    chapters_map = Enum.map(chapters, fn(chapter) -> parse_chapter(chapter) end)
-    {title_name, chapters_map}
+    chapters_with_index = Enum.with_index(chapters)
+    chapters_map = Enum.map(chapters_with_index, &parse_chapter(&1))
+    {"TITULO #{index_to_word(index)}: " <> title_name, chapters_map}
   end
 
-  defp parse_title_containing(title, :articles) do
+  defp parse_title_containing({title, index}, :articles) do
     raw_articles = split_title_using(title, article_expression)
 
     {title_name, articles} = extract_title_name(raw_articles)
-    articles_map = Enum.map(articles, fn(article) -> parse_article(article) end)
-    {title_name, articles_map}
+    articles_map = Enum.map(articles, &parse_article(&1))
+    {"TITULO #{index_to_word(index)}: " <> title_name, articles_map}
   end
 
   ####################
   # Private functions
   ####################
-  defp title_has(title) do
+  defp title_has({title, _index}) do
     if title_has_chapters(title) do
       if title_has_headlands(title), do: :headlands, else: :chapters
     else
@@ -89,6 +90,10 @@ defmodule LawExtractor.TitleParser do
     |> Enum.map(&String.strip/1)
   end
 
+  defp index_to_word(index) do
+    ["PRIMERO","SEGUNDO","TERCERO","CUARTO","QUINTO","SEXTO","SEPTIMO","OCTAVO","NOVENO","DECIMO"]
+    |> Enum.at(index)
+  end
   # section_exp = ~r{\n\n\s*(\w+|\s+)+\n\n/u}
   # sections = String.split(hd(chapters), section_exp, trim: true)
 

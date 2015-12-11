@@ -9,8 +9,8 @@ defmodule LawExtractor.ChapterParser do
   ####################
   # Public functions
   ####################
-  def parse_chapter(chapter) do
-    parse_chapter_containing(chapter, chapter_has(chapter))
+  def parse_chapter(chapter_with_index) do
+    parse_chapter_containing(chapter_with_index, chapter_has(chapter_with_index))
   end
 
   def chapter_expression, do: @chapter_expression
@@ -18,34 +18,34 @@ defmodule LawExtractor.ChapterParser do
   ####################
   # Branchs
   ####################
-  defp parse_chapter_containing(chapter, :subtitles) do
+  defp parse_chapter_containing({chapter, index}, :subtitles) do
     raw_articles = split_chapter_using(chapter, article_expression)
 
     {chapter_name, subtitle, articles} = extract_chapter_name_and_subtitle(raw_articles)
     articles_map = Enum.map(articles, &parse_article(&1))
-    {chapter_name, {subtitle, articles_map}}
+    {"CAPITULO #{index_to_word(index)}: " <> chapter_name, {subtitle, articles_map}}
   end
 
-  defp parse_chapter_containing(chapter, :sections) do
+  defp parse_chapter_containing({chapter, index}, :sections) do
     raw_sections = split_chapter_using(chapter, section_expression)
 
     {chapter_name, sections} = extract_chapter_name(raw_sections)
     sections_map = Enum.map(sections, &parse_section(&1))
-    {chapter_name, sections_map}
+    {"CAPITULO #{index_to_word(index)}: " <> chapter_name, sections_map}
   end
 
-  defp parse_chapter_containing(chapter, :articles) do
+  defp parse_chapter_containing({chapter, index}, :articles) do
     raw_articles = split_chapter_using(chapter, article_expression)
 
     {chapter_name, articles} = extract_chapter_name(raw_articles)
     articles_map = Enum.map(articles, &parse_article(&1))
-    {chapter_name, articles_map}
+    {"CAPITULO #{index_to_word(index)}: " <> chapter_name, articles_map}
   end
 
   ####################
   # Private functions
   ####################
-  defp chapter_has(chapter) do
+  defp chapter_has({chapter, _index}) do
     cond do
       chapter_has_sections(chapter) -> :sections
       chapter_has_subtitles(chapter) -> :subtitles
@@ -91,4 +91,8 @@ defmodule LawExtractor.ChapterParser do
     {chapter_name, subtitle, articles}
   end
 
+  defp index_to_word(index) do
+    ["PRIMERO","SEGUNDO","TERCERO","CUARTO","QUINTO","SEXTO","SEPTIMO","OCTAVO","NOVENO","DECIMO"]
+    |> Enum.at(index)
+  end
 end
