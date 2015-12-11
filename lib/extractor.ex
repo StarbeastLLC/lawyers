@@ -33,6 +33,7 @@ defmodule LawExtractor.Extractor do
     {preliminars, books_with_trans} = extract_preliminars(raw_books)
     {transitories, books} = extract_transitories(books_with_trans)
 
+    books = Enum.with_index(books)
     {preliminars, books, transitories}
   end
 

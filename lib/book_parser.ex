@@ -7,33 +7,33 @@ defmodule LawExtractor.BookParser do
   ####################
   # Public functions
   ####################
-  def parse_book(book) do
-    parse_book_containing(book, book_has(book))
+  def parse_book(book_with_index) do
+    parse_book_containing(book_with_index, book_has(book_with_index))
   end
 
   ####################
   # Branchs
   ####################
-  defp parse_book_containing(book, :parts) do
+  defp parse_book_containing({book, index}, :parts) do
     raw_parts = split_book_using(book, part_expression)
 
     {book_title, parts} = extract_book_title(raw_parts)
     parts_map = Enum.map(parts, fn(part) -> parse_part(part) end)
-    {book_title, parts_map}
+    {"LIBRO #{index_to_word(index)}: " <> book_title, parts_map}
   end
 
-  defp parse_book_containing(book, :titles) do
+  defp parse_book_containing({book, index}, :titles) do
     raw_titles = split_book_using(book, title_expression)
 
     {book_title, titles} = extract_book_title(raw_titles)
     titles_map = Enum.map(titles, fn(title) -> parse_title(title) end)
-    {book_title, titles_map}
+    {"LIBRO #{index_to_word(index)}: " <> book_title, titles_map}
   end
 
   ####################
   # Private functions
   ####################
-  defp book_has(book) do
+  defp book_has({book, _index}) do
     case Regex.match?(part_expression, book) do
       true -> :parts
       false -> :titles
@@ -52,4 +52,8 @@ defmodule LawExtractor.BookParser do
     {book_title, elements}
   end
 
+  defp index_to_word(index) do
+    ["PRIMERO","SEGUNDO","TERCERO","CUARTO","QUINTO","SEXTO","SEPTIMO","OCTAVO","NOVENO","DECIMO"]
+    |> Enum.at(index)
+  end
 end
