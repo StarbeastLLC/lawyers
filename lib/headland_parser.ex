@@ -24,7 +24,8 @@ defmodule LawExtractor.HeadlandParser do
   ####################
   defp parse_headland_containing(headland_name, headland, :subheadlands) do
     headland_titles = extract_headland_titles(headland, subheadland_expression)
-    {titles, _} = Enum.reduce(headland_titles, %{titles: [], general: []}, &extract_divisor(&1, &2))
+    %{titles: titles} = Enum.reduce(headland_titles, %{titles: [], general: []}, &extract_divisor(&1, &2))
+    titles = Enum.reverse(titles)
 
     subheadlands = split_headland_using_titles(headland, titles)
     subheadlands_with_names = List.zip([titles | [subheadlands | []]])
@@ -51,7 +52,7 @@ defmodule LawExtractor.HeadlandParser do
   # Private functions
   ####################
   defp headland_has(headline) do
-    unless headland_has_chapters(headline) do
+    if headland_has_chapters(headline) do
       if headland_has_subheadlands(headline), do: :subheadlands, else: :chapters
     else
       :articles
@@ -110,7 +111,7 @@ defmodule LawExtractor.HeadlandParser do
   end
 
   defp create_regular_expression_from_titles(titles) do
-    exp_to_compile = "(" <> Enum.join(titles, "|") <> ")"
+    exp_to_compile = "(" <> Enum.join(titles, "|\s\s\s") <> ")"
     Regex.compile(exp_to_compile)
   end
 end
