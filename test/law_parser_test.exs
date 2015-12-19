@@ -61,6 +61,6 @@ defmodule LawExtractor.LawParserTest do
   # @tag :skip
   test "create json" do
     data = LawParser.parse_file("docs/2_241213.txt")
-    IO.inspect data.books
+    # IO.inspect data.books
   end
 end

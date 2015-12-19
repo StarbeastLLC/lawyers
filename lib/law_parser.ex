@@ -10,11 +10,12 @@ defmodule LawExtractor.LawParser do
   # Función principal de inicio del parseo del contenido del archivo
   ###################################################################
   def parse_file(file_name) do
-    {title, header, preliminar, books, _transitories} = extract_content_from_file_name(file_name)
-    books_map = Enum.map(books, &parse_book(&1))
+    {title, header, preliminar, books, transitories} = extract_content_from_file_name(file_name)
     preliminar_map = parse_preliminar(preliminar)
+    books_map = Enum.map(books, &parse_book(&1))
+    transitories_map = parse_transitories(transitories)
 
-    %{title: title, header: header, preliminar: preliminar_map, books: books_map}
+    %{title: title, header: header, preliminar: preliminar_map, books: books_map, transitories: transitories_map}
   end
 
   ####################
@@ -26,6 +27,10 @@ defmodule LawExtractor.LawParser do
     |> Stream.with_index
     |> Enum.map fn({k, v}) -> {"Artículo #{v + 1}", k} end
     Enum.into(preliminar_map, %{})
+  end
+
+  defp parse_transitories(transitories) do
+    IO.inspect transitories
   end
 
 end
